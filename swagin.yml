@@ -1,0 +1,31 @@
+# Swagin Build File (http://github.com/c4s4/neon)
+
+doc:     Build file for Swagin
+extends: [golang]
+default: [lint]
+
+properties:
+  ORIGINAL_REPO: 'git@github.com:long2ice/swagin.git'
+  MAIN_BRANCH:   'dev'
+
+targets:
+
+  example:
+    doc: "Run example application"
+    steps:
+    - $: [go, run, examples/main.go, examples/api.go, examples/routers.go, examples/swagger.go]
+
+  update:
+    doc: "Update dev branch from upstream"
+    steps:
+    - $:  'git rev-parse --abbrev-ref HEAD'
+      1=: branch
+    - $: [git, checkout, =MAIN_BRANCH]
+    - $: [git, fetch, upstream]
+    - $: [git, merge, 'upstream/={MAIN_BRANCH}']
+    - $: [git, checkout, =branch]
+
+  upstream:
+    doc: "Get upstream remote (run only once)"
+    steps:
+    - $: [git, remote, add, upstream, =ORIGINAL_REPO]
