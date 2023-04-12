@@ -1,8 +1,8 @@
 # Swagin Build File (http://github.com/c4s4/neon)
 
-doc:     Build file for Swagin
-extends: [golang]
-default: [lint]
+doc:     "Build file for Swagin"
+extends: golang
+default: lint
 
 properties:
   ORIGINAL_REPO: 'git@github.com:long2ice/swagin.git'
@@ -18,7 +18,7 @@ targets:
   update:
     doc: "Update dev branch from upstream"
     steps:
-    - $:  'git rev-parse --abbrev-ref HEAD'
+    - $: [git, rev-parse, --abbrev-ref, HEAD]
       1=: branch
     - $: [git, checkout, =MAIN_BRANCH]
     - $: [git, fetch, upstream]
