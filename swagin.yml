@@ -2,7 +2,7 @@
 
 doc:     "Build file for Swagin"
 extends: golang
-default: lint
+default: check
 
 properties:
   ORIGINAL_REPO: 'git@github.com:long2ice/swagin.git'
@@ -14,6 +14,30 @@ targets:
     doc: "Run example application"
     steps:
     - $: [go, run, examples/main.go, examples/api.go, examples/routers.go, examples/swagger.go]
+
+  test:
+    doc: "Run integration tests"
+    steps:
+    # Build and start example application
+    - 'binary = "/tmp/example-"+uuid()'
+    - $: [go, build, -o, =binary, './examples']
+    - start: =binary
+      pid:   pid
+    # Wait for server to be up
+    - 'running = false'
+    - while: '!running'
+      do:
+      - try:
+        - $: ['nc', '-vz', '127.0.0.1', '8080']
+        - 'running = true'
+        catch:
+        - sleep: 1.0
+    # Run integration tests
+    - try:
+      - $: [venom, run, 'examples/test/*.yml']
+      finally:
+      - $: [kill, '={pid}']
+      - delete: =binary
 
   update:
     doc: "Update dev branch from upstream"
